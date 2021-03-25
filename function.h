@@ -24,7 +24,7 @@
 #define NO 2
 
 typedef int status;
-int variable_number, sentence_number, vn;
+int variable_number, sentence_number;
 int strategy;
 int Flag;
 int mark_true[100000]; //储存当前真值的下标 如果为零表示已经在进行测试或者已经经过测试
@@ -87,7 +87,6 @@ status readCnf(headNode_ptr *Head, FILE *fp, dChart_ptr &G) {
             printf("cnf文件中的文字数：%d     公式数： %d\n", variable_number, sentence_number);
         }
         count = sentence_number;
-        vn = sentence_number;
         //读取公式部分
         clauseNode *p = NULL, *temp = NULL;
         headNode *root = NULL, *reer = NULL;
@@ -731,6 +730,23 @@ void Unique(char *filename) {
     SudokuToCnf(conf, fileLen, filename);
 }
 
+void showCnf(headNode_ptr Head) {
+    headNode *p = Head;
+    for (int i = 0; i < sentence_number; ++i) {
+        if (p->mark != 0) {
+            clauseNode* q = p->content;
+            while (q) {
+                if (q->mark != 0)
+                    printf("%d ", q->variable);
+                else
+                    printf("0 ");
+                q = q->next;
+            }
+            printf("\n");
+        }
+        p = p->next;
+    }
+}
 
 /*
  *

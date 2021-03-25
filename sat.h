@@ -103,7 +103,7 @@ void SAT() {
                             mark_times[10000]={0};
                             Mark(T, mark_times, mark_number);
                             t1 = clock();
-                            flag = Dpll(T, 1, Chart,);
+                            flag = Dpll(T, 1, Chart);
                             t2 = clock();
                             time[0] = t2 - t1;
                             printf("时间：%4d ms\n", time[0]);
@@ -111,7 +111,7 @@ void SAT() {
                         } else if (Flag == 2) {
                             strategy = 2;
                             t1 = clock();
-                            flag = Dpll(T, 1, Char);
+                            flag = Dpll(T, 1, Chart);
                             t2 = clock();
                             time[1] = t2 - t1;
                             printf("时间：%4d ms\n\n", time[1]);
