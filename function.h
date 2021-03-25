@@ -38,7 +38,6 @@ int difference = 1; //附加变元行列辨识符 1为行 2为列
 int order;  //读取数独的阶数
 int emptyClause = FALSE;
 int singleClause;
-int check;
 //参考word设计的结构 存储cnf的公式
 /*子句结构*/
 typedef struct clauseNode {
@@ -303,7 +302,7 @@ status Delete(dChart_ptr G, int flag) {
     }
     return OK;
 }
-
+/*
 //纯文字规则
 int pureWord(dChart_ptr G) {
     for (int i = 1; i <= variable_number; ++i) {
@@ -330,7 +329,7 @@ int pureWord(dChart_ptr G) {
         }
     }
 }
-
+*/
 
 //恢复单子句
 status Rewind(dChart_ptr G, int flag) {

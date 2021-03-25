@@ -3,4 +3,4 @@ project(SAT)
 
 set(CMAKE_CXX_STANDARD 14)
 
-add_executable(SAT main.cpp function.h dpll.h sat.h Sudoku.h)
+add_executable(SAT main.cpp function.h sat.h Sudoku.h dpll.h)

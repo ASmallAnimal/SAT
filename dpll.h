@@ -1,3 +1,9 @@
+//
+// Created by spiri on 2021/3/25.
+//
+
+#ifndef SAT_DPLL_H
+#define SAT_DPLL_H
 #include "function.h"
 
 /*dpll函数版块*/
@@ -32,3 +38,4 @@ status Dpll(headNode *Head, int next_variable, dChart_ptr G) {
         }
     }
 }
+#endif //SAT_DPLL_H
