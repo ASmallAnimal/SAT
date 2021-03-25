@@ -26,7 +26,6 @@ void Sudoku() {
     int count = 0;
     int hole;
     int digReady = YES;
-    int singleTrue[500]={0};
 
     headNode_ptr T;
     headNode Arr;
@@ -202,29 +201,30 @@ void Sudoku() {
                     break;
                 }
                 if (choice == 2) {
-                    printf("请输入棋盘信息所在地址：\n");
-                    scanf("%s", filename);
-                    if (readSquare(filename, conf, fileLen) == OK) {
-                        n = int(sqrt(fileLen));
-                        printf("读入成功！数独为%d阶\n", n);
-                        //打印棋盘：
-                        for (int i = 1; i <= fileLen; i++) {
-                            if (conf[i - 1] == 48)
-                                printf(" 0 ");
-                            else if (conf[i - 1] == 49)
-                                printf(" 1 ");
-                            else
-                                printf(" _ ");
-                            if (i % n == 0) printf("\n");
-                        }
-                    }
-                }
 
+                }
                 getchar();
                 getchar();
                 break;
             case 2:
                 //读文件
+                printf("请输入棋盘信息所在地址：\n");
+                scanf("%s", filename);
+                if (readSquare(filename, conf, fileLen) == OK) {
+                    n = int(sqrt(fileLen));
+                    printf("读入成功！数独为%d阶\n", n);
+                    //打印棋盘：
+                    for (int i = 1; i <= fileLen; i++) {
+                        if (conf[i - 1] == 48)
+                            printf(" 0 ");
+                        else if (conf[i - 1] == 49)
+                            printf(" 1 ");
+                        else
+                            printf(" _ ");
+                        if (i % n == 0) printf("\n");
+                    }
+                }
+                //转换文件
                 SudokuToCnf(conf, fileLen, filename);
                 printf("棋盘cnf文件保存成功！\n");
                 printf("cnf文件文字数%d 公式数%d", variable_number, sentence_number);
@@ -239,17 +239,7 @@ void Sudoku() {
                 }
                 fp1 = fopen(result, "r");
                 readCnf(&T, fp1, G);
-                getchar();
-                getchar();
-                break;
-            case 3:
-                if (Traverse(T) == OK)
-                    printf("cnf文件输出成功！\n");
-                else printf("cnf文件输出失败！\n");
-                getchar();
-                getchar();
-                break;
-            case 4:
+
                 for (int i = 1; i < variable_number + 1; i++)
                     mark_true[i] = 0;
                 Mark(T, mark_times, mark_number);
