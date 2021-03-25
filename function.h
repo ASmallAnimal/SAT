@@ -24,7 +24,7 @@
 #define NO 2
 
 typedef int status;
-int variable_number, sentence_number,vn;
+int variable_number, sentence_number, vn;
 int strategy;
 int Flag;
 int mark_true[100000]; //储存当前真值的下标 如果为零表示已经在进行测试或者已经经过测试
@@ -86,7 +86,7 @@ status readCnf(headNode_ptr *Head, FILE *fp, dChart_ptr &G) {
             printf("cnf文件中的文字数：%d     公式数： %d\n", variable_number, sentence_number);
         }
         count = sentence_number;
-        vn=sentence_number;
+        vn = sentence_number;
         //读取公式部分
         clauseNode *p = NULL, *temp = NULL;
         headNode *root = NULL, *reer = NULL;
@@ -734,7 +734,7 @@ void showCnf(headNode_ptr Head) {
     headNode *p = Head;
     for (int i = 0; i < vn; ++i) {
         if (p->mark != 0) {
-            clauseNode* q = p->content;
+            clauseNode *q = p->content;
             while (q) {
                 if (q->mark != 0)
                     printf("%d ", q->variable);
@@ -748,6 +748,79 @@ void showCnf(headNode_ptr Head) {
     }
 }
 
+
+//打印棋盘
+void outputSquare(int fileLen, int mark[], int &count) {
+    for (int i = 1; i < fileLen + 1; i++) {
+        if (mark[i] == 1) {
+            printf(" 1 ");
+        } else if (mark[i] == -1) {
+            printf(" 0 ");
+        } else {
+            printf(" _ ");
+            count++;
+        }
+        if (i % order == 0) printf("\n");
+    }
+}
+
+//保存棋盘
+void saveSquare(char filename[], int mark_accessory[], int fileLen) {
+    FILE *fp;
+    fp = fopen(filename, "w");
+    for (int i = 1; i < fileLen + 1; i++) {
+        if (mark_accessory[i] == 0) fprintf(fp, "*");
+        else if (mark_accessory[i] == -1) {
+            fprintf(fp, "0");
+        } else
+            fprintf(fp, "1");
+    }
+    fclose(fp);
+}
+//保存棋盘cnf文件
+
+
+
+//生成棋盘挖洞
+
+
+//填写答案
+void inputAnswer(int position[], int count, int answer[]) {
+    printf("请输入上述数独棋盘的解，请用行列式表达！（ij v 分别表示行列，格子要填入的数）\n");
+    int rlblank, blank;
+    int userAnswer[50];
+    for (int i = 0; i < count; ++i) {
+        scanf("%d %d", &rlblank, &blank);
+        rlblank = match_normal(rlblank);
+        if (blank == 1)
+            userAnswer[rlblank] = 1;
+        if (blank == 0)
+            userAnswer[rlblank] = -1;
+        if (userAnswer[rlblank] != answer[rlblank])
+            position[i] = rlblank;
+    }
+}
+
+
+//checkAnswer
+void checkAnswer(int count, int position[], int fileLen, int answer[]) {
+    int flag = TRUE;
+    for (int i = 0; i < count; ++i) {
+        if (position[i] != 0) {
+            printf("位置%d错误!", (position[i] / order + 1) * 10 + i % order + 1);
+            flag = FALSE;
+        }
+    }
+    if (flag == TRUE) printf("答案输入正确！");
+
+    printf("棋盘答案为：\n");
+    for (int i = 1; i < fileLen + 1; i++) {
+        if (answer[i] == 1)
+            printf("%d %d\n", i, answer[i]);
+        if (answer[i] == -1)
+            printf("%d %d\n", i, answer[i] + 1);
+    }
+}
 /*
  *
  * //寻找空子句

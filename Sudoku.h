@@ -12,10 +12,9 @@
 void Sudoku() {
     int mark_accessory[100];
     int answer[50] = {0};
-    int userAnswer[50];
     int position[50] = {0};
     FILE *fp1 = NULL;
-    FILE *fp = NULL;
+    //FILE *fp = NULL;
     int flag = FALSE, op = 1;
 
     char filename[100];
@@ -26,6 +25,8 @@ void Sudoku() {
     int count = 0;
     int hole;
     int digReady = YES;
+    int rlblank, blank;
+    int confine;
 
     headNode_ptr T;
     headNode Arr;
@@ -39,170 +40,116 @@ void Sudoku() {
     while (op) {
         system("cls");
         printf("******\t\tSudoku\t\t******\n");
-        printf("\t1. 读取棋盘信息\t2. 保存棋盘cnf文件\n");
-        printf("\t3. 输出棋盘cnf文件 \t4. 输出棋盘的解\n");
+        printf("\t1. 挖洞法生成棋盘\t2. 读入已有棋盘\n");
         printf("\t0. 返回上一级\n");
         printf("请输入对应功能前的数字：");
         scanf("%d", &op);
         switch (op) {
             case 1:
-                printf("请选择自动生成棋盘还是读入已有棋盘求解！\n");
-                printf("1--挖洞法生成棋盘 2--读入已有的棋盘：");
-                int choice;
-                scanf("%d", &choice);
-                if (choice == 1) {
-                    printf("请输入生成棋盘的阶数，并选择棋盘存储的位置！\n");
-                    printf("棋盘的阶数为：");
-                    scanf("%d", &order);
-                    fileLen = (int) pow(order, 2);
-                    printf("生成棋盘存储的位置为：(.txt)结尾\n");
-                    scanf("%s", filename);
-                    while (flag != OK) {
-                        GenerateSquare(filename);
-                        Unique(filename);
-                        strcpy(result, filename);
-                        for (int i = 0; i < 70; i++) {
-                            if (result[i] == '.') {
-                                result[i + 1] = 'c';
-                                result[i + 2] = 'n';
-                                result[i + 3] = 'f';
+                printf("请输入生成棋盘的阶数，并选择棋盘存储的位置！\n");
+                printf("棋盘的阶数为：");
+                scanf("%d", &order);
+                fileLen = (int) pow(order, 2);
+                printf("生成棋盘存储的位置为：(.txt)结尾\n");
+                scanf("%s", filename);
+                //生成棋盘终盘
+                while (flag != OK) {
+                    GenerateSquare(filename);
+                    Unique(filename);
+                    strcpy(result, filename);
+                    for (int i = 0; i < 70; i++) {
+                        if (result[i] == '.') {
+                            result[i + 1] = 'c';
+                            result[i + 2] = 'n';
+                            result[i + 3] = 'f';
+                            break;
+                        }
+                    }
+                    fp1 = fopen(result, "r");
+                    readCnf(&T, fp1, G);
+                    fclose(fp1);
+                    for (int i = 1; i < variable_number + 1; i++)
+                        mark_true[i] = 0;
+                    Mark(T, mark_times, mark_number);
+                    strategy = 2;
+                    flag = Dpll(T, 1, G);
+                }
+                printf("终盘生成成功！\n");
+                outputSquare(fileLen, mark_true, count);
+
+                printf("正在执行挖洞法...（难度简单）\n");
+                //保留棋盘副本
+                for (int i = 1; i <= fileLen; ++i)
+                    mark_accessory[i] = mark_true[i];
+                //设置限定条件
+                rlblank = order - 1, blank = fileLen / 2 - 6;
+                confine = TRUE;
+                //初始化时间种子
+                srand((unsigned) time(NULL));
+                while (blank) {
+                    //约束一
+                    hole = rand() % fileLen;
+                    if (hole == 0) continue;
+                    //约束2
+                    int b_count = 0;
+                    for (int i = 1; i <= fileLen; ++i) {
+                        if (mark_accessory[i] == 0) b_count++;
+                        if (i % order == 0) {
+                            if (b_count > rlblank) {
+                                confine = FALSE;
                                 break;
                             }
-                        }
-                        fp1 = fopen(result, "r");
-                        readCnf(&T, fp1, G);
-                        fclose(fp1);
-                        for (int i = 1; i < variable_number + 1; i++)
-                            mark_true[i] = 0;
-                        Mark(T, mark_times, mark_number);
-                        strategy = 2;
-                        flag = Dpll(T, 1, G);
+                            b_count = 0;
+                        } else confine = TRUE;
                     }
-                    printf("终盘生成成功！\n");
-                    for (int i = 1; i < fileLen + 1; i++) {
-                        if (mark_true[i] == 1) {
-                            printf(" 1 ");
-                        } else if (mark_true[i] == -1) {
-                            printf(" 0 ");
-                        }
-                        if (i % order == 0) printf("\n");
-                    }
-                    printf("正在执行挖洞法...（难度简单）\n");
-                    //棋盘副本
-                    for (int i = 1; i <= fileLen; ++i)
-                        mark_accessory[i] = mark_true[i];
 
-                    int rlblank = order - 1, blank = fileLen / 2 - 6;
-                    int confine = TRUE;
-                    srand((unsigned) time(NULL)); //初始化时间种子
-
-                    while (blank) { //约束一
-                        hole = rand() % fileLen;
-                        if (hole == 0) continue;
-                        //约束2
-                        int b_count = 0;
-                        for (int i = 1; i <= fileLen; ++i) {
-                            if (mark_accessory[i] == 0) b_count++;
-                            if (i % order == 0) {
-                                if (b_count > rlblank) {
-                                    confine = FALSE;
-                                    break;
-                                }
-                                b_count = 0;
-                            } else confine = TRUE;
-                        }
-                        //挖洞
-                        if (confine == TRUE) {
-                            if (mark_accessory[hole] != 0) {
-                                if (mark_accessory[hole] == -1)
-                                    mark_accessory[hole] = 1;
-                                else mark_accessory[hole] = -1;
-                                digReady = YES;
-                            } else digReady = NO;
-                        } else continue;
-                        if (digReady == NO) continue;
-
-                        //检验唯一解
-                        fp = fopen(filename, "w");
-                        for (int i = 1; i < fileLen + 1; i++) {
-                            if (mark_accessory[i] == 0) fprintf(fp, "*");
-                            else if (mark_accessory[i] == -1) {
-                                fprintf(fp, "0");
-                            } else
-                                fprintf(fp, "1");
-                        }
-                        fclose(fp);
-                        readSquare(filename, conf, fileLen);
-                        SudokuToCnf(conf, fileLen, filename);
-                        fp1 = fopen(result, "r");
-                        readCnf(&T, fp1, G);
-                        fclose(fp1);
-                        for (int i = 1; i < variable_number + 1; i++)
-                            mark_true[i] = 0;
-                        Mark(T, mark_times, mark_number);
-                        strategy = 2;
-                        flag = Dpll(T, 1, G);
-                        if (flag == FALSE) {
-                            if (mark_accessory[hole] == -1)
-                                answer[hole] = 1;
-                            else answer[hole] = -1;
-                            mark_accessory[hole] = 0;
-                            digReady = YES;
-                            blank--;
-                        } else {
+                    //挖洞
+                    if (confine == TRUE) {
+                        if (mark_accessory[hole] != 0) {
                             if (mark_accessory[hole] == -1)
                                 mark_accessory[hole] = 1;
                             else mark_accessory[hole] = -1;
-                        }
-                    }
-                    printf("使用挖洞法生成棋盘成功！\n");
-                    for (int i = 1; i < fileLen + 1; i++) {
-                        if (mark_accessory[i] == 1) {
-                            printf(" 1 ");
-                        } else if (mark_accessory[i] == -1) {
-                            printf(" 0 ");
-                        } else {
-                            printf(" _ ");
-                            count++;
-                        }
-                        if (i % order == 0) printf("\n");
-                    }
+                            digReady = YES;
+                        } else digReady = NO;
+                    } else continue;
+                    if (digReady == NO) continue;
 
-                    printf("请输入上述数独棋盘的解，请用行列式表达！（ij v 分别表示行列，格子要填入的数）\n");
-                    for (int i = 0; i < count; ++i) {
-                        scanf("%d %d", &rlblank, &blank);
-                        rlblank = match_normal(rlblank);
-                        if (blank == 1)
-                            userAnswer[rlblank] = 1;
-                        if (blank == 0)
-                            userAnswer[rlblank] = -1;
-                        if (userAnswer[rlblank] != answer[rlblank])
-                            position[i] = rlblank;
+                    //检验挖洞唯一解的正确性
+                    saveSquare(filename, mark_accessory, fileLen);
+                    readSquare(filename, conf, fileLen);
+                    SudokuToCnf(conf, fileLen, filename);
+                    fp1 = fopen(result, "r");
+                    readCnf(&T, fp1, G);
+                    fclose(fp1);
+                    for (int i = 1; i < variable_number + 1; i++)
+                        mark_true[i] = 0;
+                    Mark(T, mark_times, mark_number);
+                    strategy = 2;
+                    flag = Dpll(T, 1, G);
+                    if (flag == FALSE) {
+                        if (mark_accessory[hole] == -1)
+                            answer[hole] = 1;
+                        else answer[hole] = -1;
+                        mark_accessory[hole] = 0;
+                        digReady = YES;
+                        blank--;
+                    } else {
+                        if (mark_accessory[hole] == -1)
+                            mark_accessory[hole] = 1;
+                        else mark_accessory[hole] = -1;
                     }
-                    //checkAnswer
-                    flag = TRUE;
-                    for (int i = 0; i < count; ++i) {
-                        if (position[i] != 0) {
-                            printf("位置%d错误!", (position[i] / order + 1) * 10 + i % order + 1);
-                            flag = FALSE;
-                        }
-                    }
-                    if (flag == TRUE) printf("答案输入正确！");
-
-                    printf("棋盘答案为：\n");
-                    for (int i = 1; i < fileLen + 1; i++) {
-                        if (answer[i] == 1)
-                            printf("%d %d\n", i, answer[i]);
-                        if (answer[i] == -1)
-                            printf("%d %d\n", i, answer[i] + 1);
-                    }
-                    getchar();
-                    getchar();
-                    break;
                 }
-                if (choice == 2) {
 
-                }
+                //保存挖洞之后的棋盘
+                saveSquare(filename, mark_accessory, fileLen);
+                //打印挖洞之后的棋盘
+                printf("使用挖洞法生成棋盘成功！\n");
+                outputSquare(fileLen, mark_accessory, count);
+
+                //填写答案
+                inputAnswer(position, count, answer);
+                //检查答案
+                checkAnswer(count, position, fileLen, answer);
                 getchar();
                 getchar();
                 break;
@@ -265,24 +212,14 @@ void Sudoku() {
                     for (int i = 1; i < variable_number + 1; i++) {
                         if (mark_true[i] == 1) {
                             fprintf(fp1, "%d  ", i);
-                            printf("%6d", i);
                         } else if (mark_true[i] == -1) {
                             fprintf(fp1, "%d  ", -i);
-                            printf("%6d", -i);
                         }
                         if (i % order == 0) printf("\n");
                     }
-                    printf("\ncnf的解输出成功！\n");
                     //打印求解之后的棋盘
                     printf("棋盘求解后为：\n");
-                    for (int i = 1; i < fileLen + 1; i++) {
-                        if (mark_true[i] == 1) {
-                            printf(" 1 ");
-                        } else if (mark_true[i] == -1) {
-                            printf(" 0 ");
-                        }
-                        if (i % order == 0) printf("\n");
-                    }
+                    outputSquare(fileLen, mark_true, count);
                     fprintf(fp1, "\n%d\n", t2 - t1);
                     fclose(fp1);
                 } else {
@@ -290,10 +227,12 @@ void Sudoku() {
                     fprintf(fp1, "%d\n", 0);
                     fprintf(fp1, "%d\n", t2 - t1);
                     fclose(fp1);
-                    printf("dpll算法处理失败，cnf文件无解！\n");
+                    printf("dpll算法处理失败，棋盘无解！\n");
                 }
-                flag = 0;
                 getchar();
+                getchar();
+                break;
+            case 0:
                 getchar();
                 break;
         }
