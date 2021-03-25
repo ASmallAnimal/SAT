@@ -15,20 +15,43 @@ status Dpll(headNode *Head, int next_variable, dChart_ptr G) {
     while (singleClause != 0) {
         int singleTrue[500];
         next_variable = findVariable(Head);
-        singleTrue[i++] = abs(next_variable); //储存当前循环中的单子句
+        singleTrue[i++] = next_variable; //储存当前循环中的单子句
         if (next_variable == 0) {
-            while (i--) {
-                Rewind(G, singleTrue[i - 1]);
-                mark_true[singleTrue[i - 1]] = 0;
+            printf("出现错误！\n");
+            while (i >= 0) {
+                Rewind(G, singleTrue[i]);
+                if (check == 1) {
+                    showCnf(Head);
+                    printf("回溯单子句！%d", singleTrue[i]);
+                    getchar();
+                    getchar();
+                }
+                mark_true[abs(singleTrue[i])] = 0;
+                i--;
             }
             return FALSE;
         }
         Delete(G, next_variable);
+        if (check == 1) {
+            showCnf(Head);
+            printf("删除单子句！%d", singleTrue[i - 1]);
+            getchar();
+            getchar();
+        }
         if (sentence_number == 0) return OK;
         if (emptyClause == TRUE) {
-            while (i--) {
-                Rewind(G, singleTrue[i - 1]);
-                mark_true[singleTrue[i - 1]] = 0;
+            while (i >= 0) {
+                Rewind(G, singleTrue[i]);
+                if (check == 1) {
+                    showCnf(Head);
+                    printf("回溯单子句！%d", singleTrue[i]);
+                    getchar();
+                    getchar();
+                }
+                if (singleTrue[i] == -14)
+                    getchar();
+                mark_true[abs(singleTrue[i])] = 0;
+                i--;
             }
             emptyClause = FALSE;
             return FALSE;
@@ -36,17 +59,41 @@ status Dpll(headNode *Head, int next_variable, dChart_ptr G) {
     }
     next_variable = findVariable(Head);
     Delete(G, next_variable);
+    if (check == 1) {
+        showCnf(Head);
+        printf("删除文字！%d", next_variable);
+        getchar();
+        getchar();
+    }
     if (Dpll(Head, next_variable, G) == OK) return OK;
     else {
         //假设的真值测试失败 换成其相反数假设为真值
         Rewind(G, next_variable);
+        if (check == 1) {
+            showCnf(Head);
+            printf("回溯文字！%d", next_variable);
+            getchar();
+            getchar();
+        }
         Delete(G, -next_variable);
+        if (check == 1) {
+            showCnf(Head);
+            printf("删除文字！%d", -next_variable);
+            getchar();
+            getchar();
+        }
         if (Dpll(Head, -next_variable, G) == OK) {
             mark_true[next_variable] = -1;
             return OK;
         } else {
             //返回上一层假设
             Rewind(G, -next_variable);
+            if (check == 1) {
+                showCnf(Head);
+                printf("回溯文字！%d", next_variable);
+                getchar();
+                getchar();
+            }
             mark_true[abs(next_variable)] = 0;
             return FALSE;
         }

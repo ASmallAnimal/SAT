@@ -24,7 +24,7 @@
 #define NO 2
 
 typedef int status;
-int variable_number, sentence_number;
+int variable_number, sentence_number,vn;
 int strategy;
 int Flag;
 int mark_true[100000]; //储存当前真值的下标 如果为零表示已经在进行测试或者已经经过测试
@@ -38,7 +38,7 @@ int difference = 1; //附加变元行列辨识符 1为行 2为列
 int order;  //读取数独的阶数
 int emptyClause = FALSE;
 int singleClause;
-
+int check;
 //参考word设计的结构 存储cnf的公式
 /*子句结构*/
 typedef struct clauseNode {
@@ -87,6 +87,7 @@ status readCnf(headNode_ptr *Head, FILE *fp, dChart_ptr &G) {
             printf("cnf文件中的文字数：%d     公式数： %d\n", variable_number, sentence_number);
         }
         count = sentence_number;
+        vn=sentence_number;
         //读取公式部分
         clauseNode *p = NULL, *temp = NULL;
         headNode *root = NULL, *reer = NULL;
@@ -732,7 +733,7 @@ void Unique(char *filename) {
 
 void showCnf(headNode_ptr Head) {
     headNode *p = Head;
-    for (int i = 0; i < sentence_number; ++i) {
+    for (int i = 0; i < vn; ++i) {
         if (p->mark != 0) {
             clauseNode* q = p->content;
             while (q) {

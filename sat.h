@@ -95,6 +95,8 @@ void SAT() {
                         printf("请选择你需要的策略：\n");
                         printf("1：按照文字出现频次猜测   2:文字逐一猜测!\n");
                         scanf("%d", &Flag);
+                        printf("你想检查吗？");
+                        scanf("%d",&check);
                         if (Flag == 1)//选择策略
                         {
                             strategy = 1;
